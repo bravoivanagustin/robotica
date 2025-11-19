@@ -95,12 +95,12 @@ void robmovil_ekf::LocalizerEKF::makeA(void)
   
   A(1,1) = 1;
   A(1,2) = 0;
-  A(1,3) = 0;
+  A(1,3) = -delta_t * u(1) * sin(x(3));
   A(2,1) = 0;
   A(2,2) = 1;
-  A(2,3) = 0;
-  A(3,1) = -delta_t * u(1) * sin(x(3));
-  A(3,2) = delta_t * u(1) * cos(x(3));
+  A(2,3) = delta_t * u(1) * cos(x(3));
+  A(3,1) = 0;
+  A(3,2) = 0;
   A(3,3) = 1;
 
   RCLCPP_INFO(rclcpp::get_logger("robmovil_ekf"), "A: %d", A);
@@ -176,8 +176,10 @@ void robmovil_ekf::LocalizerEKF::makeH(void)
     
     H(1,1) = -diff_robot_landmark.getX() / sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
     H(1,2) = -diff_robot_landmark.getY() / sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
+    H(1,3) = 0;
     H(2,1) = diff_robot_landmark.getY() / (pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
     H(2,2) = -diff_robot_landmark.getX() / (pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
+    H(2,3) = -1;
 
   }
 
