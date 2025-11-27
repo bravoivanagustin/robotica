@@ -110,6 +110,16 @@ void robmovil_ekf::LandmarkDetector::on_laser_scan(const sensor_msgs::msg::Laser
       }
     }
 
+    // Necesito sacarme el landmark que esta arriba del robot
+    
+    /*
+    if (landmark_points.size() == 1) {
+      landmark_points.clear();
+      landmark_points.push_back(p);
+      continue;
+    }
+    */
+
     /* Al terminarse las mediciones provenientes al landmark que se venia detectando,
      * se calcula la pose del landmark como el centroide de las mediciones */
 

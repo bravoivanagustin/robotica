@@ -80,8 +80,10 @@ void robmovil_ekf::LocalizerEKF::makeBaseA(void)
 {
   A(1,1) = 1;
   A(1,2) = 0;
+  A(1,3) = 0;
   A(2,1) = 0;
   A(2,2) = 1;
+  A(2,3) = 0;
   A(3,1) = 0;
   A(3,2) = 0;
   A(3,3) = 1;
@@ -174,13 +176,13 @@ void robmovil_ekf::LocalizerEKF::makeH(void)
     
     /* COMPLETAR: Calcular H en base al landmark del mapa relativo al robot */
     
-    H(1,1) = -diff_robot_landmark.getX() / sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
-    H(1,2) = -diff_robot_landmark.getY() / sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
+    H(1,1) = -diff_robot_landmark.getX() / (sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2)));
+    H(1,2) = -diff_robot_landmark.getY() / (sqrt(pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2)));
     H(1,3) = 0;
     H(2,1) = diff_robot_landmark.getY() / (pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
     H(2,2) = -diff_robot_landmark.getX() / (pow(diff_robot_landmark.getX(),2) + pow(diff_robot_landmark.getY(),2));
     H(2,3) = -1;
-  }
+  } 
   
   RCLCPP_INFO(rclcpp::get_logger("robmovil_ekf"), "H: %d", H);
 }
@@ -225,8 +227,8 @@ void robmovil_ekf::LocalizerEKF::makeProcess(void)
   x(2) = 0;
   x(3) = angles::normalize_angle(0);
 
-  x(1) = x_old(1) + delta_t * u(1) * cos(x(3));
-  x(2) = x_old(2) + delta_t * u(1) * sin(x(3));
+  x(1) = x_old(1) + delta_t * u(1) * cos(x_old(3));
+  x(2) = x_old(2) + delta_t * u(1) * sin(x_old(3));
   x(3) = angles::normalize_angle(x_old(3) + delta_t * u(2));
 
   RCLCPP_INFO(rclcpp::get_logger("robmovil_ekf"), "Process model: X_t-1: %d, X_t: %d, delta_t: %d", x_old, x, delta_t);

@@ -13,6 +13,9 @@ En /root/ros2_ws/src/sim_ros2_interface/meta/interfaces.txt agregar:
 robmovil_msgs/msg/EncoderTicks
 rosgraph_msgs/msg/Clock
 sensor_msgs/msg/Imu
+nav_msgs/msg/MapMetaData
+nav_msgs/msg/OccupancyGrid
+geometry_msgs/msg/PoseStamped
 
 En /root/ros2_ws/src/sim_ros2_interface/package.xml agregar: 
 <depend>robmovil_msgs</depend>
