@@ -74,7 +74,7 @@ start(){
     else
         echo "Creando nuevo contenedor 'ros2_robotica'..."
         #comando original
-        run "docker run --name ros2_robotica --shm-size=256m -v /home/agustinbravo/Desktop/robotica/taller11:/root/ros2_ws/src/robotica --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --env QT_X11_NO_MITSHM=1 -it -d ros2_robotica "
+        run "docker run --name ros2_robotica --shm-size=256m -v /home/agustinbravo/Desktop/robotica/taller10:/root/ros2_ws/src/robotica --env DISPLAY=$DISPLAY --volume /tmp/.X11-unix:/tmp/.X11-unix:rw --env QT_X11_NO_MITSHM=1 -it -d ros2_robotica "
     fi
 }
 
