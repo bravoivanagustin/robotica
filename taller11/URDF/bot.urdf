@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <robot name="Pioneer_p3dx">
-    <link name="base_link">
+    <link name="base_link_gt">
         <inertial>
             <origin rpy="-3.141593 3.141593 -3.141593" xyz="0.000000 0.000000 0.138793" />
             <inertia izz="2.0906035900116" iyy="1.9390720129013" ixy="1.3291859387186e-44" ixx="1.9199999570847" iyz="2.9803723463435e-16" ixz="6.7551167532783e-30" />
@@ -576,7 +576,7 @@
     </link>
     <joint type="continuous" name="Pioneer_p3dx_rightMotor">
         <axis xyz="0 0 1" />
-        <parent link="base_link" />
+        <parent link="base_link_gt" />
         <child link="Pioneer_p3dx_rightWheel" />
         <origin rpy="1.570797 3.141938 -3.141592" xyz="0.044515 -0.165501 0.097518" />
     </joint>
@@ -613,7 +613,7 @@
     </link>
     <joint type="continuous" name="Pioneer_p3dx_leftMotor">
         <axis xyz="0 0 1" />
-        <parent link="base_link" />
+        <parent link="base_link_gt" />
         <child link="Pioneer_p3dx_leftWheel" />
         <origin rpy="1.570797 3.141938 -3.141593" xyz="0.044510 0.165499 0.097541" />
     </joint>
@@ -650,7 +650,7 @@
     </link>
     <joint type="continuous" name="Pioneer_p3dx_caster_freeJoint1">
         <axis xyz="0 0 1" />
-        <parent link="base_link" />
+        <parent link="base_link_gt" />
         <child link="Pioneer_p3dx_caster_link" />
         <origin rpy="-3.141593 3.141938 -3.141593" xyz="-0.149027 -0.000001 0.060951" />
     </joint>

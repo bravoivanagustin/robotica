@@ -8,39 +8,48 @@
 
 #define COST_BETWEEN_CELLS 1
 
+using Cell = robmovil_planning::AStarPlanner::Cell;
+
 robmovil_planning::AStarPlanner::AStarPlanner()
 : GridPlanner()
 { }
 
-std::vector<robmovil_planning::AStarPlanner::Cell> robmovil_planning::AStarPlanner::neighbors(const Cell& c)
+std::vector<Cell> robmovil_planning::AStarPlanner::neighbors(const Cell& c) 
 {
   /* COMPLETAR: Calcular un vector de vecinos (distintos de c).
    * IMPORTANTE: Tener en cuenta los limites de la grilla (utilizar grid_->info.width y grid_->info.heigh)
    *             y aquellas celdas ocupadas */
-  
-   std::vector<Cell> neighbors;
-   uint ancho = grid_->info.width;
-   uint alto = grid_->info.height;
-   
-   uint i = c.i;
-   uint j = c.j;
 
-   for (int di = -1; di <= 1; di++) {
-       for (int dj = -1; dj <= 1; dj++) {
-           if (di == 0 && dj == 0) continue;
-           
-           uint ni = i + di;
-           uint nj = j + dj;
-           
-           if (ni >= 0 && ni < ancho && nj >= 0 && nj < alto) {
-               if (!isCellOccupy(ni, nj)) {
-                   neighbors.emplace_back(ni, nj);
-               }
-           }
-       }
-   }
+    std::vector<Cell> neighbors;
 
-  return neighbors;
+    int ancho = grid_->info.width;
+    int alto  = grid_->info.height;
+
+    int i = c.i;
+    int j = c.j;
+
+    for (int di = -1; di <= 1; di++) {
+        for (int dj = -1; dj <= 1; dj++) {
+
+            if (di == 0 && dj == 0) continue;
+
+            int ni = i + di;
+            int nj = j + dj;
+            bool esDiagonal = (di * dj != 0);
+          
+            if (ni < 0 || ni >= ancho || nj < 0 || nj >= alto) continue;
+
+            if (isCellOccupy(ni, nj)) continue;
+
+            if (isANeighborCellOccupy(ni, nj)) continue;
+
+            if (esDiagonal && (isCellOccupy(i, nj) || isCellOccupy(ni, j))) continue;
+
+            neighbors.emplace_back(ni, nj);
+        }
+    }
+
+    return neighbors;
 }
 
 double robmovil_planning::AStarPlanner::heuristic_cost(const Cell& start, const Cell& goal, const Cell& current)
@@ -83,24 +92,26 @@ bool robmovil_planning::AStarPlanner::do_planning(robmovil_msgs::msg::Trajectory
    *       para la resolucion */
   
   while (!frontier.empty()) {
-      Cell current = frontier.top();
-      frontier.pop();
+    Cell current = frontier.top();
+    frontier.pop();
 
-      if (current == goal) {
-          path_found = true;
-          break;
-      }
+    if (current == goal) {
+      path_found = true;
+      break;
+    }
 
-      for (const Cell& next : neighbors(current)) {
-          double new_cost = cost_so_far[current] + COST_BETWEEN_CELLS;
+    for (const Cell& next : neighbors(current)) {
+      double new_cost = cost_so_far.at(current) + COST_BETWEEN_CELLS;
 
-          if (cost_so_far.find(next) == cost_so_far.end() || new_cost < cost_so_far[next] ) {
-              cost_so_far[next] = new_cost;
-              double priority = new_cost + heuristic_cost(start, goal, next);
-              frontier.push(CellWithPriority(next, priority));
-              came_from[next] = current;
-          }
-      }
+      bool seen = cost_so_far.count(next);
+
+      if (seen && new_cost >= cost_so_far.at(next)) continue;
+
+      cost_so_far[next] = new_cost;
+      double priority = new_cost + heuristic_cost(start, goal, next);
+      frontier.push(CellWithPriority(next, priority));
+      came_from[next] = current;
+    }
   }
 
   if(not path_found)
