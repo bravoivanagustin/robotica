@@ -117,7 +117,7 @@ void robmovil_ekf::LandmarkDetector::on_laser_scan(const sensor_msgs::msg::Laser
     double dy_filtrado = last.getY() - landmark_points[0].getY();
     double dist_filtrado = hypot(dx_filtrado, dy_filtrado);
 
-    // Ultimo agregado, esto hace que no tome al propio robot como landmark
+    // Ultimo agregado, esto hace que no tome al propio robot como landmark  
     if (dist_filtrado < 0.001) {
       landmark_points.clear();
       landmark_points.push_back(p);
