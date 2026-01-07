@@ -57,21 +57,20 @@ SpaceConfiguration robmovil_planning::PioneerRRTPlanner::generateRandomConfig()
 
     if (r < goal_bias_) {
       // Obtener limites en torno al goal
-      double min_x = std::max(origin_x, goal_config_.get(0) - ancho*goal_bias_/2);
-      double max_x = std::min(max_largo, goal_config_.get(0) + ancho*goal_bias_/2);
-      double min_y = std::max(origin_y, goal_config_.get(1) - alto*goal_bias_/2);
-      double max_y = std::min(max_alto, goal_config_.get(1) + alto*goal_bias_/2);
+      double min_x = std::max(origin_x, goal_config_.get(0) - 1);
+      double max_x = std::min(max_largo, goal_config_.get(0) + 1);
+      double min_y = std::max(origin_y, goal_config_.get(1) - 1);
+      double max_y = std::min(max_alto, goal_config_.get(1) + 1);
       // Configuracion cercana al goal 
       r_x = randBetween(min_x, max_x);
       r_y = randBetween(min_y, max_y);
       // Quiero que la orientacion apunte hacia el goal
-      double delta_x = goal_config_.get(0) - r_x;
-      double delta_y = goal_config_.get(1) - r_y;
-      r_theta = randBetween(atan2(delta_y, delta_x) - 3.1416/6, atan2(delta_y, delta_x) + 3.1416/6);
+      // double delta_x = goal_config_.get(0) - r_x;
+      // double delta_y = goal_config_.get(1) - r_y;
+      r_theta = randBetween(goal_config_.get(2) - 0.5, goal_config_.get(2) + 0.5);
     }
     
     else {
-    // Devuelvo configuracion aleatoria en el espacio de busqueda
       r_x = randBetween(origin_x, max_largo);
       r_y = randBetween(origin_y, max_alto);
       r_theta = randBetween(-3.1416, 3.1416);
@@ -89,7 +88,8 @@ double robmovil_planning::PioneerRRTPlanner::distancesBetween(const SpaceConfigu
   
   double dist_ori = abs( angles::shortest_angular_distance(c1.get(2), c2.get(2)) );
   double dist_pos = sqrt( pow(c1.get(0) - c2.get(0), 2) + pow(c1.get(1) - c2.get(1), 2) );
-  return 0.25*dist_pos + 0.50*dist_ori;
+
+  return 0.50*dist_pos + 0.50*dist_ori;
 }
 
 SpaceConfiguration robmovil_planning::PioneerRRTPlanner::nearest()
@@ -145,12 +145,11 @@ SpaceConfiguration robmovil_planning::PioneerRRTPlanner::steer()
   double x;
   double y;
 
-  for (double v = -Vx_step_; v <= Vx_step_; v += Vx_step_) {
-    for (double w = -Wz_step_; w <= Wz_step_; w += Wz_step_) {
+    for (double w = -2*Wz_step_; w <= 2*Wz_step_; w += Wz_step_/2) {
 
       angulo = near_config_.get(2) + w;
-      x = near_config_.get(0) + v * cos(angulo); 
-      y = near_config_.get(1) + v * sin(angulo);
+      x = near_config_.get(0) + Vx_step_ * cos(angulo); 
+      y = near_config_.get(1) + Vx_step_ * sin(angulo);
 
       SpaceConfiguration s_posible({ x, y, angles::normalize_angle(angulo) });
 
@@ -162,11 +161,13 @@ SpaceConfiguration robmovil_planning::PioneerRRTPlanner::steer()
         }
       }
 
-      if (!occupied) {
+      uint i, j;
+      getCellOfPosition(x, y, i, j);
+
+      if (!occupied && !isCellOccupy(i, j) && !isANeighborCellOccupy(i, j)) {
         free_steerings.push_back(s_posible);
       }
     }
-  }
 
   double min_distance = std::numeric_limits<double>::max();
 
@@ -188,7 +189,7 @@ bool robmovil_planning::PioneerRRTPlanner::isFree()
   uint i, j;
   getCellOfPosition(new_config_.get(0), new_config_.get(1), i, j);
 
-  if (!isANeighborCellOccupy(i, j)) {
+  if (!isANeighborCellOccupy(i, j) && !isCellOccupy(i, j) && (0 <= i && i < grid_->info.width) && (0 <= j && j < grid_->info.height)) {
     return true;
   }
 
@@ -206,7 +207,7 @@ bool robmovil_planning::PioneerRRTPlanner::isGoalAchieve()
   double dist_ori = abs( angles::shortest_angular_distance(new_config_.get(2), goal_config_.get(2)) );
   double dist_pos = sqrt( pow(new_config_.get(0) - goal_config_.get(0), 2) + pow(new_config_.get(1) - goal_config_.get(1), 2) );
   
-  return dist_pos < 0.1 && dist_ori < M_PI/2;
+  return (dist_pos < 0.1) && (dist_ori < M_PI/2);
 }
 
 
